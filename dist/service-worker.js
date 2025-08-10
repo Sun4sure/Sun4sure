@@ -1,39 +1,41 @@
-const CACHE_NAME = "sun4sure-cache-v2";
+const REPO_BASE_PATH = '/Sun4sure';
+const CACHE_NAME = 'sun4sure-cache-v2';
 
 // Install: cache all build files dynamically
-self.addEventListener("install", event => {
-  self.skipWaiting(); // Activate new SW immediately
+self.addEventListener('install', event => {
+  self.skipWaiting();
   event.waitUntil(
     caches.open(CACHE_NAME).then(cache => {
-      return fetch("/manifest.json")
+      return fetch(`${REPO_BASE_PATH}/manifest.json`)
         .then(response => response.json())
         .then(manifest => {
           const urlsToCache = [
-            "/",
-            "/index.html",
-            "/manifest.json",
-            "/icons/icon-192x192.png",
-            "/icons/icon-512x512.png"
+            `${REPO_BASE_PATH}/`,
+            `${REPO_BASE_PATH}/index.html`,
+            `${REPO_BASE_PATH}/manifest.json`,
+            `${REPO_BASE_PATH}/icons/icon-192x192.png`,
+            `${REPO_BASE_PATH}/icons/icon-512x512.png`,
           ];
-          // Automatically cache all build files from manifest (if present)
           if (manifest && manifest.files) {
-            urlsToCache.push(...Object.values(manifest.files));
+            // Adjust manifest file paths similarly or ensure they are relative
+            const manifestFiles = Object.values(manifest.files).map(file => `${REPO_BASE_PATH}${file}`);
+            urlsToCache.push(...manifestFiles);
           }
           return cache.addAll(urlsToCache);
         })
         .catch(() => {
-          // If manifest not found, just cache the core files
           return cache.addAll([
-            "/",
-            "/index.html",
-            "/manifest.json",
-            "/icons/icon-192x192.png",
-            "/icons/icon-512x512.png"
+            `${REPO_BASE_PATH}/`,
+            `${REPO_BASE_PATH}/index.html`,
+            `${REPO_BASE_PATH}/manifest.json`,
+            `${REPO_BASE_PATH}/icons/icon-192x192.png`,
+            `${REPO_BASE_PATH}/icons/icon-512x512.png`,
           ]);
         });
     })
   );
 });
+
 
 // Activate: clean old caches
 self.addEventListener("activate", event => {
